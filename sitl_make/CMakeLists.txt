@@ -31,7 +31,12 @@ set (CF2_SITL_SRCS_DIR
 )
 
 set(FREERTOS_SRC_DIR 
-  ${CF2_SITL_SRCS_DIR}/lib/FreeRTOS
+  ${CMAKE_CURRENT_SOURCE_DIR}/../vendor/FreeRTOS/
+)
+
+# Looks like some SITL specific code is still in the old FreeRTOS directory.
+set(FREERTOS_SRC_DIR_OLD
+  ${CF2_SITL_SRCS_DIR}/lib/FreeRTOS/
 )
 
 # Code variables
@@ -94,18 +99,19 @@ set(FREERTOS_SRCS
    ${FREERTOS_SRC_DIR}/tasks.c
    ${FREERTOS_SRC_DIR}/timers.c
    ${FREERTOS_SRC_DIR}/croutine.c
-   ${FREERTOS_SRC_DIR}/portable/GCC/Linux/port.c
+   ${FREERTOS_SRC_DIR_OLD}/portable/GCC/Linux/port.c
    ${FREERTOS_SRC_DIR}/portable/MemMang/heap_3.c
 )
 
 set (CF2_SITL_INCLUDE_DIRS
   ${FREERTOS_SRC_DIR}/include
-  ${FREERTOS_SRC_DIR}/portable/GCC/Linux
+  ${FREERTOS_SRC_DIR_OLD}/portable/GCC/Linux
   ${CF2_SITL_SRCS_DIR}/config
   ${CF2_SITL_SRCS_DIR}/hal/interface
   ${CF2_SITL_SRCS_DIR}/modules/interface
   ${CF2_SITL_SRCS_DIR}/platform
   ${CF2_SITL_SRCS_DIR}/utils/interface
+  ${CF2_SITL_SRCS_DIR}/utils/interface/lighthouse
   #Verification
   ${INCL_VERIF}
   #${CMAKE_CURRENT_SOURCE_DIR}/include

@@ -76,7 +76,7 @@
 #else
 /* We don't want any call to the watchdog since no watchdog in SITL*/
     #define configUSE_IDLE_HOOK         0
-#endif    
+#endif
 #define configUSE_TICK_HOOK			0
 #define configCPU_CLOCK_HZ			( ( unsigned long ) FREERTOS_MCU_CLOCK_HZ )
 #define configTICK_RATE_HZ_RAW  1000
@@ -133,6 +133,10 @@ to exclude the API function. */
 #define F2T(X) ((unsigned int)((configTICK_RATE_HZ/(X))))
 #define T2M(X) ((unsigned int)(X))
 
+// Seconds to OS ticks
+#define S2T(X) ((portTickType)((X) * configTICK_RATE_HZ))
+#define T2S(X) ((X) / (float)configTICK_RATE_HZ)
+
 
 // DEBUG SECTION
 #define configUSE_APPLICATION_TASK_TAG  1
@@ -167,6 +171,8 @@ to exclude the API function. */
     debugSendTraceInfo((int)pxCurrentTCB->pxTaskTag); \
   }
 */
+
+#define configSUPPORT_STATIC_ALLOCATION 1
 
 // Queue monitoring
 #ifdef DEBUG_QUEUE_MONITOR

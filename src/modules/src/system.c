@@ -61,16 +61,22 @@
 #include "buzzer.h"
 #include "sound.h"
 #include "sysload.h"
+#include "estimator_kalman.h"
 #include "deck.h"
 #include "extrx.h"
+#include "app.h"
+#include "static_mem.h"
 
 /* Private variable */
 static bool selftestPassed;
 static bool canFly;
 static bool isInit;
 
+STATIC_MEM_TASK_ALLOC(systemTask, SYSTEM_TASK_STACKSIZE);
+
 /* System wide synchronisation */
 xSemaphoreHandle canStartMutex;
+static StaticSemaphore_t canStartMutexBuffer;
 
 /* Private functions */
 static void systemTask(void *arg);
@@ -78,10 +84,7 @@ static void systemTask(void *arg);
 /* Public functions */
 void systemLaunch(void)
 {
-  xTaskCreate(systemTask, SYSTEM_TASK_NAME,
-              SYSTEM_TASK_STACKSIZE, NULL,
-              SYSTEM_TASK_PRI, NULL);
-
+  STATIC_MEM_TASK_CREATE(systemTask, systemTask, SYSTEM_TASK_NAME, NULL, SYSTEM_TASK_PRI);
 }
 
 // This must be the first module to be initialized!
@@ -90,20 +93,26 @@ void systemInit(void)
   if(isInit)
     return;
 
-  canStartMutex = xSemaphoreCreateMutex();
+  canStartMutex = xSemaphoreCreateMutexStatic(&canStartMutexBuffer);
   xSemaphoreTake(canStartMutex, portMAX_DELAY);
 
   usblinkInit();
   sysLoadInit();
 
   /* Initialized here so that DEBUG_PRINT (buffered) can be used early */
+  debugInit();
   crtpInit();
   consoleInit();
 
   DEBUG_PRINT("----------------------------\n");
   DEBUG_PRINT("%s is up and running!\n", platformConfigGetDeviceTypeName());
-  DEBUG_PRINT("Build %s:%s (%s) %s\n", V_SLOCAL_REVISION,
-              V_SREVISION, V_STAG, (V_MODIFIED)?"MODIFIED":"CLEAN");
+
+  if (V_PRODUCTION_RELEASE) {
+    DEBUG_PRINT("Production release %s\n", V_STAG);
+  } else {
+    DEBUG_PRINT("Build %s:%s (%s) %s\n", V_SLOCAL_REVISION,
+                V_SREVISION, V_STAG, (V_MODIFIED)?"MODIFIED":"CLEAN");
+  }
   DEBUG_PRINT("I am 0x%08X%08X%08X and I have %dKB of flash!\n",
               *((int*)(MCU_ID_ADDRESS+8)), *((int*)(MCU_ID_ADDRESS+4)),
               *((int*)(MCU_ID_ADDRESS+0)), *((short*)(MCU_FLASH_SIZE_ADDRESS)));
@@ -114,6 +123,10 @@ void systemInit(void)
   ledseqInit();
   pmInit();
   buzzerInit();
+
+#ifdef APP_ENABLED
+  appInit();
+#endif
 
   isInit = true;
 }
@@ -143,10 +156,10 @@ void systemTask(void *arg)
 #endif
 
 #ifdef ENABLE_UART1
-  uart1Init();
+  uart1Init(9600);
 #endif
 #ifdef ENABLE_UART2
-  uart2Init();
+  uart2Init(115200);
 #endif
 
   //Init the high-levels modules
@@ -155,6 +168,7 @@ void systemTask(void *arg)
   commanderInit();
 
   StateEstimatorType estimator = anyEstimator;
+  estimatorKalmanTaskInit();
   deckInit();
   estimator = deckGetRequiredEstimator();
   stabilizerInit(estimator);
@@ -175,6 +189,7 @@ void systemTask(void *arg)
   pass &= commTest();
   pass &= commanderTest();
   pass &= stabilizerTest();
+  pass &= estimatorKalmanTaskTest();
   pass &= deckTest();
   pass &= soundTest();
   pass &= memTest();

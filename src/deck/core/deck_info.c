@@ -182,7 +182,7 @@ static void enumerateDecks(void)
 
   if (owScan(&nDecks))
   {
-    DEBUG_PRINT("Found %d deck memor%s.\n", nDecks, nDecks>1?"ies":"y");
+    DECK_INFO_DBG_PRINT("Found %d deck memor%s.\n", nDecks, nDecks>1?"ies":"y");
   } else {
     DEBUG_PRINT("Error scanning for deck memories, "
                 "no deck drivers will be initialised\n");
@@ -225,20 +225,21 @@ static void enumerateDecks(void)
 
   // Add build-forced driver
   if (strlen(deck_force) > 0) {
-  	//split deck_force into multiple, separated by colons, if available 
-    char delim[] = ":"; 
+    DEBUG_PRINT("DECK_FORCE=%s found\n", deck_force);
+  	//split deck_force into multiple, separated by colons, if available
+    char delim[] = ":";
 
-    char temp_deck_force[strlen(deck_force)]; 
-    strcpy(temp_deck_force, deck_force); 
-    char * token = strtok(temp_deck_force, delim); 
- 
-    while (token) { 
-      deck_force = token; 
+    char temp_deck_force[strlen(deck_force) + 1];
+    strcpy(temp_deck_force, deck_force);
+    char * token = strtok(temp_deck_force, delim);
+
+    while (token) {
+      deck_force = token;
 
       const DeckDriver *driver = deckFindDriverByName(deck_force);
       if (!driver) {
         DEBUG_PRINT("WARNING: compile-time forced driver %s not found\n", deck_force);
-      } else if (driver->init) {
+      } else if (driver->init || driver->test) {
         if (nDecks <= DECK_MAX_COUNT)
         {
           nDecks++;
@@ -248,8 +249,8 @@ static void enumerateDecks(void)
           DEBUG_PRINT("WARNING: No room for compile-time forced driver\n");
         }
       }
-      token = strtok(NULL, delim); 
-	}
+      token = strtok(NULL, delim);
+    }
   }
 
   if (noError) {
