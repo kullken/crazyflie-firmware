@@ -27,7 +27,9 @@
 #define PLATFORM_H_
 
 #include <stdbool.h>
+#ifndef SITL_CF2
 #include "motors.h"
+#endif
 
 #define PLATFORM_DEVICE_TYPE_STRING_MAX_LEN (32 + 1)
 #define PLATFORM_DEVICE_TYPE_MAX_LEN (4 + 1)
@@ -61,7 +63,9 @@ typedef struct {
   char deviceTypeName[20];
   SensorImplementation_t sensorImplementation;
   bool physicalLayoutAntennasAreClose;
+#ifndef SITL_CF2
   const MotorPerifDef** motorMap;
+#endif
 } platformConfig_t;
 
 /**
@@ -86,6 +90,9 @@ const char* platformConfigGetDeviceType();
 const char* platformConfigGetDeviceTypeName();
 SensorImplementation_t platformConfigGetSensorImplementation();
 bool platformConfigPhysicalLayoutAntennasAreClose();
+
+#ifndef SITL_CF2
 const MotorPerifDef** platformConfigGetMotorMapping();
+#endif
 
 #endif /* PLATFORM_H_ */

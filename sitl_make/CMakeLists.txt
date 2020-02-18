@@ -151,6 +151,7 @@ set(SRCS
   ${CF2_SITL_SRCS_DIR}/modules/src/platformservice.c
   ${CF2_SITL_SRCS_DIR}/modules/src/sysload.c
   ${CF2_SITL_SRCS_DIR}/modules/src/mem_sitl.c
+  ${CF2_SITL_SRCS_DIR}/modules/src/static_mem.c
 
   #stabilizer modules
   ${CF2_SITL_SRCS_DIR}/modules/src/commander.c
@@ -169,18 +170,25 @@ set(SRCS
   ${CF2_SITL_SRCS_DIR}/modules/src/estimator.c
   ${CF2_SITL_SRCS_DIR}/modules/src/estimator_complementary.c
   ${CF2_SITL_SRCS_DIR}/modules/src/estimator_kalman.c
+  ${CF2_SITL_SRCS_DIR}/modules/src/kalman_core.c
+  ${CF2_SITL_SRCS_DIR}/modules/src/kalman_supervisor.c
   ${CF2_SITL_SRCS_DIR}/modules/src/outlierFilter.c
 
   #Controller and power distribution
   ${CF2_SITL_SRCS_DIR}/modules/src/controller.c
   ${CF2_SITL_SRCS_DIR}/modules/src/controller_pid.c
   ${CF2_SITL_SRCS_DIR}/modules/src/controller_mellinger.c
+  ${CF2_SITL_SRCS_DIR}/modules/src/controller_indi.c
   ${CF2_SITL_SRCS_DIR}/modules/src/power_distribution_sim.c
 
   #High level commander
   ${CF2_SITL_SRCS_DIR}/modules/src/crtp_commander_high_level.c
   ${CF2_SITL_SRCS_DIR}/modules/src/planner.c
   ${CF2_SITL_SRCS_DIR}/modules/src/pptraj.c
+  ${CF2_SITL_SRCS_DIR}/modules/src/pptraj_compressed.c
+
+  #Platform
+  ${CF2_SITL_SRCS_DIR}/platform/platform.c
 
   #Utilities
   ${CF2_SITL_SRCS_DIR}/utils/src/filter.c
@@ -189,6 +197,7 @@ set(SRCS
   ${CF2_SITL_SRCS_DIR}/utils/src/num.c
   ${CF2_SITL_SRCS_DIR}/utils/src/debug.c
   ${CF2_SITL_SRCS_DIR}/utils/src/configblocksitl.c
+  ${CF2_SITL_SRCS_DIR}/utils/src/statsCnt.c
 
   ${CF2_SITL_SRCS_DIR}/../version.c
   ${FREERTOS_SRCS}

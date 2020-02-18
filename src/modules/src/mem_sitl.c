@@ -41,12 +41,17 @@
 #include "config.h"
 #include "crtp.h"
 #include "mem.h"
+#include "ow.h"
 
 #include "crtp_commander_high_level.h"
 
 #include "console.h"
 #include "assert.h"
 #include "debug.h"
+
+#include "log.h"
+#include "param.h"
+#include "static_mem.h"
 
 #if 0
 #define MEM_DEBUG(fmt, ...) DEBUG_PRINT("D/log " fmt, ## __VA_ARGS__)
@@ -59,6 +64,13 @@
 
 // Maximum log payload length
 #define MEM_MAX_LEN 30
+
+#define MEM_SETTINGS_CH     0
+#define MEM_READ_CH         1
+#define MEM_WRITE_CH        2
+
+#define MEM_CMD_GET_NBR     1
+#define MEM_CMD_GET_INFO    2
 
 // The first part of the memory ids are static followed by a dynamic part
 // of one wire ids that depends on the decks that are attached

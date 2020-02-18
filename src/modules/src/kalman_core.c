@@ -80,6 +80,7 @@
  * Supporting and utility functions
  */
 
+#ifndef SITL_CF2
 static inline void mat_trans(const arm_matrix_instance_f32 * pSrc, arm_matrix_instance_f32 * pDst)
 { ASSERT(ARM_MATH_SUCCESS == arm_mat_trans_f32(pSrc, pDst)); }
 static inline void mat_inv(const arm_matrix_instance_f32 * pSrc, arm_matrix_instance_f32 * pDst)
@@ -88,7 +89,41 @@ static inline void mat_mult(const arm_matrix_instance_f32 * pSrcA, const arm_mat
 { ASSERT(ARM_MATH_SUCCESS == arm_mat_mult_f32(pSrcA, pSrcB, pDst)); }
 static inline float arm_sqrt(float32_t in)
 { float pOut = 0; arm_status result = arm_sqrt_f32(in, &pOut); ASSERT(ARM_MATH_SUCCESS == result); return pOut; }
-
+#else
+static inline void mat_trans(const arm_matrix_instance_f32 * pSrc, arm_matrix_instance_f32 * pDst)
+{ 
+  bool is_valid = (pSrc->numRows == pDst->numCols) && (pSrc->numCols == pDst->numRows);
+  configASSERT(is_valid);
+  uint8_t i,j;
+  for (i=0 ; i< pSrc->numRows; i++){
+    for(j=0 ; j< pSrc->numCols; j++){
+      pDst->pData[j * pDst->numCols + i] = pSrc->pData[i*pSrc->numCols + j];
+    }
+  } 
+}
+/*static inline void mat_inv(const arm_matrix_instance_f32 * pSrc, arm_matrix_instance_f32 * pDst)
+{ 
+  configASSERT(ARM_MATH_SUCCESS == arm_mat_inverse_f32(pSrc, pDst)); 
+}*/
+static inline void mat_mult(const arm_matrix_instance_f32 * pSrcA, const arm_matrix_instance_f32 * pSrcB, arm_matrix_instance_f32 * pDst)
+{ 
+  bool is_valid = (pSrcA->numCols == pSrcB->numRows) && (pSrcA->numRows == pDst->numRows) && (pSrcB->numCols == pDst->numCols);
+  configASSERT(is_valid);
+  uint8_t i,j,k;
+  for(i=0; i< pDst->numRows ; i++){
+    for(j=0; j<pDst->numCols ; j++){
+      pDst->pData[j+ i*pDst->numCols] = 0.0f;
+    }
+  }
+  for(i=0; i< pDst->numRows ; i++){
+    for(j=0; j<pDst->numCols ; j++){
+      for(k=0; k<pSrcA->numCols; k++){
+        pDst->pData[j+ i*pDst->numCols] += pSrcA->pData[i*pSrcA->numCols + k ] * pSrcB->pData[k*pSrcB->numCols + j];
+      }
+    }
+  }
+}
+#endif
 
 #ifdef DEBUG_STATE_CHECK
 static void assertStateNotNaN(const kalmanCoreData_t* this) {

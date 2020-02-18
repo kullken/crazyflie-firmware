@@ -79,32 +79,7 @@
 
 #include "statsCnt.h"
 
-#include "math.h"
-
-#ifndef SITL_CF2
 #include "cf_math.h"
-#endif
-
-//#define KALMAN_USE_BARO_UPDATE
-//#define KALMAN_NAN_CHECK
-
-#ifdef SITL_CF2
-
-#include <string.h>
-
-#define PI                            3.1415926f
-#define arm_matrix_instance_f32       Matrixf
-#define arm_sqrt(x)                   sqrtf(x)
-#define arm_sqrt_f32(x)               sqrtf(x)
-#define arm_cos_f32(x)                cosf(x)
-#define arm_sin_f32(x)                sinf(x)
-
-typedef struct{
-  uint16_t numRows;
-  uint16_t numCols;
-  float *pData;
-} Matrixf;     
-#endif
 
 #define DEBUG_MODULE "ESTKALMAN"
 #include "debug.h"
@@ -329,39 +304,6 @@ static inline void mat_mult(const arm_matrix_instance_f32 * pSrcA, const arm_mat
       }
     }
   }
-}
-#endif
-
-#ifdef KALMAN_NAN_CHECK
-static void stateEstimatorAssertNotNaN() {
-  if ((isnan(S[STATE_X])) ||
-      (isnan(S[STATE_Y])) ||
-      (isnan(S[STATE_Z])) ||
-      (isnan(S[STATE_PX])) ||
-      (isnan(S[STATE_PY])) ||
-      (isnan(S[STATE_PZ])) ||
-      (isnan(S[STATE_D0])) ||
-      (isnan(S[STATE_D1])) ||
-      (isnan(S[STATE_D2])) ||
-      (isnan(q[0])) ||
-      (isnan(q[1])) ||
-      (isnan(q[2])) ||
-      (isnan(q[3]))) { resetEstimation = true; }
-
-  for(int i=0; i<STATE_DIM; i++) {
-    for(int j=0; j<STATE_DIM; j++)
-    {
-      if (isnan(P[i][j]))
-      {
-        resetEstimation = true;
-      }
-    }
-  }
-}
-#else
-static void stateEstimatorAssertNotNaN()
-{
-  return;
 }
 #endif
 

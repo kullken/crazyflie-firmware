@@ -45,6 +45,7 @@
 #include "worker.h"
 #include "comm.h"
 #include "stabilizer.h"
+#include "estimator_kalman.h"
 #include "commander.h"
 #include "console.h"
 #include "socketlink.h"
@@ -129,6 +130,7 @@ void systemTask(void *arg)
   DEBUG_PRINT("Commander init finished \n");
 
   StateEstimatorType estimator = ESTIMATOR_NAME;
+  estimatorKalmanTaskInit();
   stabilizerInit(estimator);
   DEBUG_PRINT("stabilizer init finished \n");
 
@@ -141,6 +143,7 @@ void systemTask(void *arg)
   pass &= commTest();
   pass &= commanderTest();
   pass &= stabilizerTest();
+  pass &= estimatorKalmanTaskTest();
   pass &= memTest();
 
   //Start the firmware

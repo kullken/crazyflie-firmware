@@ -31,6 +31,7 @@
 static const platformConfig_t* active_config = 0;
 
 int platformInit(void) {
+#ifndef SITL_CF2
   int nrOfConfigs = 0;
   const platformConfig_t* configs = platformGetListOfConfigurations(&nrOfConfigs);
 
@@ -43,6 +44,9 @@ int platformInit(void) {
 
   platformInitHardware();
   return 0;
+#else
+  return 0;
+#endif
 }
 
 int platformParseDeviceTypeString(const char* deviceTypeString, char* deviceType) {
@@ -70,6 +74,7 @@ int platformParseDeviceTypeString(const char* deviceTypeString, char* deviceType
 }
 
 int platformInitConfiguration(const platformConfig_t* configs, const int nrOfConfigs) {
+#ifndef SITL_CF2
 #ifndef DEVICE_TYPE_STRING_FORCE
   char deviceTypeString[PLATFORM_DEVICE_TYPE_STRING_MAX_LEN];
   char deviceType[PLATFORM_DEVICE_TYPE_MAX_LEN];
@@ -92,6 +97,9 @@ int platformInitConfiguration(const platformConfig_t* configs, const int nrOfCon
   }
 
   return 1;
+#else
+  return 0;
+#endif
 }
 
 const char* platformConfigGetDeviceType() {
@@ -110,7 +118,9 @@ bool platformConfigPhysicalLayoutAntennasAreClose() {
   return active_config->physicalLayoutAntennasAreClose;
 }
 
+#ifndef SITL_CF2
 const MotorPerifDef** platformConfigGetMotorMapping() {
   return active_config->motorMap;
 }
+#endif
 

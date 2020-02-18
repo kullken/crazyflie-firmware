@@ -50,7 +50,9 @@
 #include "power_distribution.h"
 
 #include "estimator.h"
+#ifndef SITL_CF2
 #include "usddeck.h"
+#endif
 #include "quatcompress.h"
 #include "statsCnt.h"
 #include "static_mem.h"
@@ -118,6 +120,7 @@ static struct {
   int16_t az;
 } setpointCompressed;
 
+#ifndef SITL_CF2
 static float accVarX[NBR_OF_MOTORS];
 static float accVarY[NBR_OF_MOTORS];
 static float accVarZ[NBR_OF_MOTORS];
@@ -128,6 +131,7 @@ static float accVarZ[NBR_OF_MOTORS];
 // Bit 3 - 1 = M4 passed
 static uint8_t motorPass = 0;
 static uint16_t motorTestCount = 0;
+#endif
 
 STATIC_MEM_TASK_ALLOC(stabilizerTask, STABILIZER_TASK_STACKSIZE);
 
@@ -164,7 +168,7 @@ static void compressState()
     state.attitudeQuaternion.w};
   stateCompressed.quat = quatcompress(q);
 
-  float const deg2millirad = ((float)M_PI * 1000.0f) / 180.0f;
+  float const deg2millirad = (PI * 1000.0f) / 180.0f;
   stateCompressed.rateRoll = sensorData.gyro.x * deg2millirad;
   stateCompressed.ratePitch = -sensorData.gyro.y * deg2millirad;
   stateCompressed.rateYaw = sensorData.gyro.z * deg2millirad;
@@ -301,12 +305,14 @@ static void stabilizerTask(void* param)
         powerDistribution(&control);
       }
 
+#ifndef SITL_CF2
       // Log data to uSD card if configured
       if (   usddeckLoggingEnabled()
           && usddeckLoggingMode() == usddeckLoggingMode_SynchronousStabilizer
           && RATE_DO_EXECUTE(usddeckFrequency(), tick)) {
         usddeckTriggerLogging();
       }
+#endif
     }
     calcSensorToOutputLatency(&sensorData);
     tick++;
@@ -550,6 +556,7 @@ PARAM_ADD(PARAM_UINT8, controller, &controllerType)
 PARAM_ADD(PARAM_UINT8, stop, &emergencyStop)
 PARAM_GROUP_STOP(stabilizer)
 
+#ifndef SITL_CF2
 LOG_GROUP_START(health)
 LOG_ADD(LOG_FLOAT, motorVarXM1, &accVarX[0])
 LOG_ADD(LOG_FLOAT, motorVarYM1, &accVarY[0])
@@ -562,6 +569,7 @@ LOG_ADD(LOG_FLOAT, motorVarYM4, &accVarY[3])
 LOG_ADD(LOG_UINT8, motorPass, &motorPass)
 LOG_ADD(LOG_UINT16, motorTestCount, &motorTestCount)
 LOG_GROUP_STOP(health)
+#endif
 
 LOG_GROUP_START(ctrltarget)
 LOG_ADD(LOG_FLOAT, x, &setpoint.position.x)

@@ -93,13 +93,10 @@ bool consoleTest(void)
 
 int consolePutchar(int ch)
 {
-  bool isInInterrupt = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
-
   if (!isInit) {
     return 0;
   }
 
-  int i;
 #ifndef SITL_CF2
   bool isInInterrupt = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
 

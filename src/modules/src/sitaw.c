@@ -34,7 +34,10 @@
 #include "sitaw.h"
 #include "commander.h"
 #include "stabilizer.h"
+
+#ifndef SITL_CF2
 #include "motors.h"
+#endif
 
 /* Trigger object used to detect Free Fall situation. */
 static trigger_t sitAwFFAccWZ;

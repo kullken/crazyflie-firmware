@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "arm_math.h"
+#include "cf_math.h"
 
 // Naive 3d vector type.
 #define vec3d_size 3
